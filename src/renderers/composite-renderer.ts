@@ -1,7 +1,7 @@
 import { IPaneRenderer } from './ipane-renderer';
 
 export class CompositeRenderer implements IPaneRenderer {
-	private _renderers: readonly IPaneRenderer[] = [];
+	protected _renderers: readonly IPaneRenderer[] = [];
 
 	public setRenderers(renderers: readonly IPaneRenderer[]): void {
 		this._renderers = renderers;

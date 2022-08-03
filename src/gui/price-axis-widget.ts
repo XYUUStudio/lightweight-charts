@@ -24,9 +24,9 @@ import { PaneWidget } from './pane-widget';
 
 export type PriceAxisWidgetSide = Exclude<PriceScalePosition, 'overlay'>;
 
-const enum CursorType {
-	Default,
-	NsResize,
+export const enum CursorType {
+	Default = 'default',
+	NsResize = 'ns-resize',
 }
 
 const enum Constants {
@@ -39,7 +39,8 @@ const enum Constants {
 	LabelOffset = 5,
 }
 
-export class PriceAxisWidget implements IDestroyable {
+export class PriceAxisWidget implements IDestroyable, MouseEventHandlers {
+	protected _mousedown: boolean = false;
 	private readonly _pane: PaneWidget;
 	private readonly _options: Readonly<ChartOptionsInternal>;
 	private readonly _layoutOptions: Readonly<LayoutOptions>;
@@ -55,7 +56,6 @@ export class PriceAxisWidget implements IDestroyable {
 	private readonly _topCanvasBinding: CanvasCoordinateSpaceBinding;
 
 	private _mouseEventHandler: MouseEventHandler;
-	private _mousedown: boolean = false;
 
 	private readonly _widthCache: TextWidthCache = new TextWidthCache(200);
 
@@ -93,22 +93,9 @@ export class PriceAxisWidget implements IDestroyable {
 		topCanvas.style.left = '0';
 		topCanvas.style.top = '0';
 
-		const handler: MouseEventHandlers = {
-			mouseDownEvent: this._mouseDownEvent.bind(this),
-			touchStartEvent: this._mouseDownEvent.bind(this),
-			pressedMouseMoveEvent: this._pressedMouseMoveEvent.bind(this),
-			touchMoveEvent: this._pressedMouseMoveEvent.bind(this),
-			mouseDownOutsideEvent: this._mouseDownOutsideEvent.bind(this),
-			mouseUpEvent: this._mouseUpEvent.bind(this),
-			touchEndEvent: this._mouseUpEvent.bind(this),
-			mouseDoubleClickEvent: this._mouseDoubleClickEvent.bind(this),
-			doubleTapEvent: this._mouseDoubleClickEvent.bind(this),
-			mouseEnterEvent: this._mouseEnterEvent.bind(this),
-			mouseLeaveEvent: this._mouseLeaveEvent.bind(this),
-		};
 		this._mouseEventHandler = new MouseEventHandler(
 			this._topCanvasBinding.canvas,
-			handler,
+			this,
 			{
 				treatVertTouchDragAsPageScroll: () => false,
 				treatHorzTouchDragAsPageScroll: () => true,
@@ -287,7 +274,7 @@ export class PriceAxisWidget implements IDestroyable {
 		this._priceScale?.marks();
 	}
 
-	private _mouseDownEvent(e: TouchMouseEvent): void {
+	public mouseDownEvent(e: TouchMouseEvent): void {
 		if (this._priceScale === null || this._priceScale.isEmpty() || !this._options.handleScale.axisPressedMouseMove.price) {
 			return;
 		}
@@ -298,7 +285,11 @@ export class PriceAxisWidget implements IDestroyable {
 		model.startScalePrice(pane, this._priceScale, e.localY);
 	}
 
-	private _pressedMouseMoveEvent(e: TouchMouseEvent): void {
+	public touchStartEvent(e: TouchMouseEvent): void {
+		this.mouseDownEvent(e);
+	}
+
+	public pressedMouseMoveEvent(e: TouchMouseEvent): void {
 		if (this._priceScale === null || !this._options.handleScale.axisPressedMouseMove.price) {
 			return;
 		}
@@ -309,7 +300,11 @@ export class PriceAxisWidget implements IDestroyable {
 		model.scalePriceTo(pane, priceScale, e.localY);
 	}
 
-	private _mouseDownOutsideEvent(): void {
+	public touchMoveEvent(e: TouchMouseEvent): void {
+		this.pressedMouseMoveEvent(e);
+	}
+
+	public mouseDownOutsideEvent(): void {
 		if (this._priceScale === null || !this._options.handleScale.axisPressedMouseMove.price) {
 			return;
 		}
@@ -324,7 +319,7 @@ export class PriceAxisWidget implements IDestroyable {
 		}
 	}
 
-	private _mouseUpEvent(e: TouchMouseEvent): void {
+	public mouseUpEvent(e: TouchMouseEvent): void {
 		if (this._priceScale === null || !this._options.handleScale.axisPressedMouseMove.price) {
 			return;
 		}
@@ -334,13 +329,21 @@ export class PriceAxisWidget implements IDestroyable {
 		model.endScalePrice(pane, this._priceScale);
 	}
 
-	private _mouseDoubleClickEvent(e: TouchMouseEvent): void {
+	public touchEndEvent(e: TouchMouseEvent): void {
+		this.mouseUpEvent(e);
+	}
+
+	public mouseDoubleClickEvent(e: TouchMouseEvent): void {
 		if (this._options.handleScale.axisDoubleClickReset.price) {
 			this.reset();
 		}
 	}
 
-	private _mouseEnterEvent(e: TouchMouseEvent): void {
+	public doubleTapEvent(e: TouchMouseEvent): void {
+		this.mouseDoubleClickEvent(e);
+	}
+
+	public mouseEnterEvent(e: TouchMouseEvent): void {
 		if (this._priceScale === null) {
 			return;
 		}
@@ -351,8 +354,12 @@ export class PriceAxisWidget implements IDestroyable {
 		}
 	}
 
-	private _mouseLeaveEvent(e: TouchMouseEvent): void {
+	public mouseLeaveEvent(e: TouchMouseEvent): void {
 		this._setCursor(CursorType.Default);
+	}
+
+	protected _setCursor(type: CursorType): void {
+		this._cell.style.cursor = type;
 	}
 
 	private _backLabels(): IPriceAxisView[] {
@@ -618,10 +625,6 @@ export class PriceAxisWidget implements IDestroyable {
 		});
 
 		ctx.restore();
-	}
-
-	private _setCursor(type: CursorType): void {
-		this._cell.style.cursor = type === CursorType.NsResize ? 'ns-resize' : 'default';
 	}
 
 	private _onMarksChanged(): void {

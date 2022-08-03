@@ -2,12 +2,18 @@ import { IPriceFormatter } from '../formatters/iprice-formatter';
 import { PercentageFormatter } from '../formatters/percentage-formatter';
 import { PriceFormatter } from '../formatters/price-formatter';
 
+import { PaneWidget } from '../gui/pane-widget';
+import { PriceAxisWidget, PriceAxisWidgetSide } from '../gui/price-axis-widget';
+
 import { ensureDefined, ensureNotNull } from '../helpers/assertions';
 import { Delegate } from '../helpers/delegate';
 import { ISubscription } from '../helpers/isubscription';
 import { DeepPartial, merge } from '../helpers/strict-type-checks';
 
+import { PriceAxisRendererOptionsProvider } from '../renderers/price-axis-renderer-options-provider';
+
 import { BarCoordinates, BarPrice, BarPrices } from './bar';
+import { ChartOptionsInternal } from './chart-model';
 import { Coordinate } from './coordinate';
 import { FirstValue, IPriceDataSource } from './iprice-data-source';
 import { LayoutOptions } from './layout-options';
@@ -101,6 +107,11 @@ export interface PriceScaleOptions {
 	 * @defaultValue {@link PriceScaleMode.Normal}
 	 */
 	mode: PriceScaleMode;
+
+	/**
+	 * yAxisWidget
+	 */
+	yAxisWidget: (widget: PaneWidget, options: Readonly<ChartOptionsInternal>, rendererOptionsProvider: PriceAxisRendererOptionsProvider, side: PriceAxisWidgetSide) => PriceAxisWidget;
 
 	/**
 	 * Invert the price scale, so that a upwards trend is shown as a downwards trend and vice versa.
@@ -411,14 +422,15 @@ export class PriceScale {
 		return this.isInverted() ? coordinate : this.height() - 1 - coordinate;
 	}
 
-	public priceToCoordinate(price: number, baseValue: number): Coordinate {
-		if (this.isPercentage()) {
-			price = toPercent(price, baseValue);
-		} else if (this.isIndexedTo100()) {
-			price = toIndexedTo100(price, baseValue);
+	public priceToCoordinate(price: number, baseValue?: number): Coordinate {
+		if (baseValue !== undefined) {
+			if (this.isPercentage()) {
+				price = toPercent(price, baseValue);
+			} else if (this.isIndexedTo100()) {
+				price = toIndexedTo100(price, baseValue);
+			}
 		}
-
-		return this._logicalToCoordinate(price, baseValue);
+		return this._logicalToCoordinate(price);
 	}
 
 	public pointsArrayToCoordinates<T extends PricedValue>(points: T[], baseValue: number, visibleRange?: SeriesItemsIndexesRange): void {
@@ -503,17 +515,19 @@ export class PriceScale {
 		}
 	}
 
-	public coordinateToPrice(coordinate: Coordinate, baseValue: number): BarPrice {
-		const logical = this._coordinateToLogical(coordinate, baseValue);
+	public coordinateToPrice(coordinate: Coordinate, baseValue?: number): BarPrice {
+		const logical = this._coordinateToLogical(coordinate);
 		return this.logicalToPrice(logical, baseValue);
 	}
 
-	public logicalToPrice(logical: number, baseValue: number): BarPrice {
+	public logicalToPrice(logical: number, baseValue?: number): BarPrice {
 		let value = logical;
-		if (this.isPercentage()) {
-			value = fromPercent(value, baseValue);
-		} else if (this.isIndexedTo100()) {
-			value = fromIndexedTo100(value, baseValue);
+		if (baseValue !== undefined) {
+			if (this.isPercentage()) {
+				value = fromPercent(value, baseValue);
+			} else if (this.isIndexedTo100()) {
+				value = fromIndexedTo100(value, baseValue);
+			}
 		}
 		return value as BarPrice;
 	}
@@ -849,7 +863,7 @@ export class PriceScale {
 		this._internalHeightCache = null;
 	}
 
-	private _logicalToCoordinate(logical: number, baseValue: number): Coordinate {
+	private _logicalToCoordinate(logical: number): Coordinate {
 		this._makeSureItIsValid();
 		if (this.isEmpty()) {
 			return 0 as Coordinate;
@@ -863,7 +877,7 @@ export class PriceScale {
 		return coordinate as Coordinate;
 	}
 
-	private _coordinateToLogical(coordinate: number, baseValue: number): number {
+	private _coordinateToLogical(coordinate: number): number {
 		this._makeSureItIsValid();
 		if (this.isEmpty()) {
 			return 0;

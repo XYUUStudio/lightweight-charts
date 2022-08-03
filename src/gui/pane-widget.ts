@@ -268,7 +268,9 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 
 		this._setCrosshairPosition(x, y);
 		const hitTest = this.hitTest(x, y);
-		this._model().setHoveredSource(hitTest && { source: hitTest.source, object: hitTest.object });
+		if (hitTest) {
+			this._model().setHoveredSource(hitTest);
+		}
 	}
 
 	public mouseClickEvent(event: MouseEventHandlerMouseEvent): void {
@@ -629,12 +631,13 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 			this._rightPriceAxisWidget = null;
 		}
 		const rendererOptionsProvider = chart.model().rendererOptionsProvider();
+		const options = chart.options();
 		if (leftAxisVisible && this._leftPriceAxisWidget === null) {
-			this._leftPriceAxisWidget = new PriceAxisWidget(this, chart.options(), rendererOptionsProvider, 'left');
+			this._leftPriceAxisWidget = options.leftPriceScale.yAxisWidget(this, options, rendererOptionsProvider, 'left');
 			this._leftAxisCell.appendChild(this._leftPriceAxisWidget.getElement());
 		}
 		if (rightAxisVisible && this._rightPriceAxisWidget === null) {
-			this._rightPriceAxisWidget = new PriceAxisWidget(this, chart.options(), rendererOptionsProvider, 'right');
+			this._rightPriceAxisWidget = options.rightPriceScale.yAxisWidget(this, options, rendererOptionsProvider, 'right');
 			this._rightAxisCell.appendChild(this._rightPriceAxisWidget.getElement());
 		}
 	}

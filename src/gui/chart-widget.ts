@@ -572,8 +572,9 @@ export class ChartWidget implements IDestroyable {
 		}
 
 		// Create (if needed) new pane widgets and separators
+		const options = this._options;
 		for (let i = actualPaneWidgetsCount; i < targetPaneWidgetsCount; i++) {
-			const paneWidget = new PaneWidget(this, panes[i]);
+			const paneWidget = options.paneWidget(this, panes[i]);
 			paneWidget.clicked().subscribe(this._onPaneWidgetClicked.bind(this), this);
 
 			this._paneWidgets.push(paneWidget);

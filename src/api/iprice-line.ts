@@ -1,9 +1,11 @@
+import { CustomPriceLine } from '../model/custom-price-line';
 import { PriceLineOptions } from '../model/price-line-options';
 
 /**
  * Represents the interface for interacting with price lines.
  */
 export interface IPriceLine {
+	priceLine(): CustomPriceLine;
 	/**
 	 * Apply options to the price line.
 	 *

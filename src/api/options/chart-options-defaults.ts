@@ -1,6 +1,10 @@
+import { ChartWidget } from '../../gui/chart-widget';
+import { PaneWidget } from '../../gui/pane-widget';
+
 import { isRunningOnClientSide } from '../../helpers/is-running-on-client-side';
 
 import { ChartOptionsInternal, TrackingModeExitMode } from '../../model/chart-model';
+import { Pane } from '../../model/pane';
 
 import { crosshairOptionsDefaults } from './crosshair-options-defaults';
 import { gridOptionsDefaults } from './grid-options-defaults';
@@ -12,6 +16,7 @@ import { watermarkOptionsDefaults } from './watermark-options-defaults';
 export const chartOptionsDefaults: ChartOptionsInternal = {
 	width: 0,
 	height: 0,
+	paneWidget: (chart: ChartWidget, pane: Pane) => new PaneWidget(chart, pane),
 	layout: layoutOptionsDefaults,
 	crosshair: crosshairOptionsDefaults,
 	grid: gridOptionsDefaults,

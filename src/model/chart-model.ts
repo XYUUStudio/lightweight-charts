@@ -1,5 +1,8 @@
 /// <reference types="_build-time-constants" />
 
+import { ChartWidget } from '../gui/chart-widget';
+import { PaneWidget } from '../gui/pane-widget';
+
 import { assert, ensureNotNull } from '../helpers/assertions';
 import { gradientColorAtPercent } from '../helpers/color';
 import { Delegate } from '../helpers/delegate';
@@ -245,6 +248,11 @@ export interface ChartOptions {
 	 * @defaultValue If `0` (default) or none value provided, then a size of the widget will be calculated based its container's size.
 	 */
 	height: number;
+
+	/**
+	 * PaneWidget
+	 */
+	paneWidget: (widget: ChartWidget, pane: Pane) => PaneWidget;
 
 	/**
 	 * Watermark options.
