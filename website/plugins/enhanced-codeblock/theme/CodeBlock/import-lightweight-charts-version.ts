@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention -- allows using version numbers as keys (e.g. "3.8") */
 import type { Version } from '../../../../versions';
 
 export type LightweightChartsApi38 = typeof import('lightweight-charts-3.8');
@@ -46,7 +47,7 @@ export const importLightweightChartsVersion: LightweightChartsApiGetters = {
 		return { module, createChart };
 	},
 	current: async () => {
-		const module = await import('../../../../..');
+		const module = await import('../../../../../src/');
 
 		const createChart: typeof module.createChart = (container: string | HTMLElement, options?: Parameters<typeof module.createChart>[1]) => {
 			const result = module.createChart(container, options);

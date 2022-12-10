@@ -1,7 +1,9 @@
 {
 	"extends": "./tsconfig.options.json",
 	"compilerOptions": {
-		"noEmit": true
+		"noEmit": true,
+		"forceConsistentCasingInFileNames":true,
+		"strict": true,
 	},
 	"include": [
 		"src/**/*.ts",

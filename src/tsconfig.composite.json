@@ -7,6 +7,10 @@
 		{ "path": "./helpers/tsconfig.composite.json" },
 		{ "path": "./tsconfig.model.json" }
 	],
+	"compilerOptions": {
+		"strict": true,
+		"forceConsistentCasingInFileNames":true,
+	},
 	"include": [
 		"./index.ts",
 		"./standalone.ts"

@@ -4,5 +4,9 @@
 		{ "path": "./tests/tsconfig.composite.json" },
 		{ "path": "./website/tsconfig.json" },
 	],
+	"compilerOptions": {
+		"strict": true,
+		"forceConsistentCasingInFileNames":true,
+	},
 	"include": []
 }

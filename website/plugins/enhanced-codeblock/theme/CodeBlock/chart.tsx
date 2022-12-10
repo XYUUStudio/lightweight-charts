@@ -1,6 +1,8 @@
-import { useDocsVersion } from '@docusaurus/theme-common';
+import { type PropVersionMetadata } from '@docusaurus/plugin-content-docs';
+import { useDocsPreferredVersion } from '@docusaurus/theme-common';
 import * as React from 'react';
 
+import versions from '../../../../versions.json';
 import { importLightweightChartsVersion, LightweightChartsApiTypeMap } from './import-lightweight-charts-version';
 import styles from './styles.module.css';
 
@@ -36,7 +38,9 @@ function getSrcDocWithScript(script: string): string {
 
 export function Chart<TVersion extends keyof LightweightChartsApiTypeMap>(props: ChartProps): JSX.Element {
 	const { script } = props;
-	const { version } = useDocsVersion() as unknown as { version: TVersion };
+	const { preferredVersion } = useDocsPreferredVersion() as { preferredVersion: (PropVersionMetadata & { name: string }) | null };
+	const currentVersion = versions && versions.length > 0 ? versions[0] : '';
+	const version = (preferredVersion?.name ?? currentVersion ?? 'current') as TVersion;
 	const srcDoc = getSrcDocWithScript(script);
 	const ref = React.useRef<HTMLIFrameElement>(null);
 
@@ -84,6 +88,7 @@ export function Chart<TVersion extends keyof LightweightChartsApiTypeMap>(props:
 			key={script}
 			ref={ref}
 			srcDoc={srcDoc}
+			title="chart"
 			className={styles.iframe}
 		/>
 	);

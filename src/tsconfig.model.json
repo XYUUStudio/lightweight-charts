@@ -4,6 +4,10 @@
 		{ "path": "./formatters/tsconfig.composite.json" },
 		{ "path": "./helpers/tsconfig.composite.json" }
 	],
+	"compilerOptions": {
+		"strict": true,
+		"forceConsistentCasingInFileNames":true,
+	},
 	"include": [
 		"./model/**/*.ts",
 		"./renderers/**/*.ts",
