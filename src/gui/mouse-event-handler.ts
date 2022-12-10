@@ -1,6 +1,6 @@
 import { ensureNotNull } from '../helpers/assertions';
 import { isFF, isIOS } from '../helpers/browsers';
-import { preventScrollByWheelClick } from '../helpers/events';
+import { MouseEventButton, preventScrollByWheelClick } from '../helpers/events';
 import { IDestroyable } from '../helpers/idestroyable';
 
 import { Coordinate } from '../model/coordinate';
@@ -38,6 +38,8 @@ export interface MouseEventHandlers {
 	touchMoveEvent?: HandlerTouchEventCallback;
 
 	longTapEvent?: HandlerTouchEventCallback;
+
+	contextmenuEvent?: HandlerMouseEventCallback;
 }
 
 export interface MouseEventHandlerEventBase {
@@ -600,9 +602,14 @@ export class MouseEventHandler implements IDestroyable {
 		}
 	}
 
+	private _contextmenuHandler(moveEvent: MouseEvent): void {
+		const compatEvent = this._makeCompatEvent(moveEvent);
+		this._processMouseEvent(compatEvent, this._handler.contextmenuEvent);
+	}
+
 	private _init(): void {
 		this._target.addEventListener('mouseenter', this._mouseEnterHandler.bind(this));
-
+		this._target.addEventListener('contextmenu', this._contextmenuHandler.bind(this));
 		// Do not show context menu when something went wrong
 		this._target.addEventListener('touchcancel', this._clearLongTapTimeout.bind(this));
 

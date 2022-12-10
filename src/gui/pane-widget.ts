@@ -268,9 +268,7 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 
 		this._setCrosshairPosition(x, y);
 		const hitTest = this.hitTest(x, y);
-		if (hitTest) {
-			this._model().setHoveredSource(hitTest);
-		}
+		this._model().setHoveredSource(hitTest && hitTest);
 	}
 
 	public mouseClickEvent(event: MouseEventHandlerMouseEvent): void {
@@ -503,7 +501,8 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		return this._rightPriceAxisWidget;
 	}
 
-	private _onStateDestroyed(): void {
+	// private
+	protected _onStateDestroyed(): void {
 		if (this._state !== null) {
 			this._state.onDestroyed().unsubscribeAll(this);
 		}
@@ -511,7 +510,8 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		this._state = null;
 	}
 
-	private _fireClickedDelegate(event: MouseEventHandlerEventBase): void {
+	// private
+	protected _fireClickedDelegate(event: MouseEventHandlerEventBase): void {
 		const x = event.localX;
 		const y = event.localY;
 
@@ -520,7 +520,8 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		}
 	}
 
-	private _drawBackground(ctx: CanvasRenderingContext2D, pixelRatio: number): void {
+	// private
+	protected _drawBackground(ctx: CanvasRenderingContext2D, pixelRatio: number): void {
 		drawScaled(ctx, pixelRatio, () => {
 			const model = this._model();
 			const topColor = model.backgroundTopColor();
@@ -534,7 +535,8 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		});
 	}
 
-	private _drawGrid(ctx: CanvasRenderingContext2D, pixelRatio: number): void {
+	// private
+	protected _drawGrid(ctx: CanvasRenderingContext2D, pixelRatio: number): void {
 		const state = ensureNotNull(this._state);
 		const paneView = state.grid().paneView();
 		const renderer = paneView.renderer(state.height(), state.width());
@@ -546,17 +548,20 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		}
 	}
 
-	private _drawWatermark(ctx: CanvasRenderingContext2D, pixelRatio: number): void {
+	// private
+	protected _drawWatermark(ctx: CanvasRenderingContext2D, pixelRatio: number): void {
 		const source = this._model().watermarkSource();
 		this._drawSourceImpl(ctx, pixelRatio, sourcePaneViews, drawBackground, source);
 		this._drawSourceImpl(ctx, pixelRatio, sourcePaneViews, drawForeground, source);
 	}
 
-	private _drawCrosshair(ctx: CanvasRenderingContext2D, pixelRatio: number): void {
+	// private
+	protected _drawCrosshair(ctx: CanvasRenderingContext2D, pixelRatio: number): void {
 		this._drawSourceImpl(ctx, pixelRatio, sourcePaneViews, drawForeground, this._model().crosshairSource());
 	}
 
-	private _drawSources(ctx: CanvasRenderingContext2D, pixelRatio: number, paneViewsGetter: PaneViewsGetter): void {
+	// private
+	protected _drawSources(ctx: CanvasRenderingContext2D, pixelRatio: number, paneViewsGetter: PaneViewsGetter): void {
 		const state = ensureNotNull(this._state);
 		const sources = state.orderedSources();
 
@@ -569,7 +574,8 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		}
 	}
 
-	private _drawSourceImpl(
+	// private
+	protected _drawSourceImpl(
 		ctx: CanvasRenderingContext2D,
 		pixelRatio: number,
 		paneViewsGetter: PaneViewsGetter,
@@ -596,7 +602,7 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		}
 	}
 
-	private _hitTestPaneView(paneViews: readonly IPaneView[], x: Coordinate, y: Coordinate): HitTestPaneViewResult | null {
+	protected _hitTestPaneView(paneViews: readonly IPaneView[], x: Coordinate, y: Coordinate): HitTestPaneViewResult | null {
 		for (const paneView of paneViews) {
 			const renderer = paneView.renderer(this._size.h, this._size.w);
 			if (renderer !== null && renderer.hitTest) {
@@ -613,7 +619,8 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		return null;
 	}
 
-	private _recreatePriceAxisWidgets(): void {
+	// private
+	protected _recreatePriceAxisWidgets(): void {
 		if (this._state === null) {
 			return;
 		}
@@ -642,34 +649,34 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		}
 	}
 
-	private _preventScroll(event: TouchMouseEvent): boolean {
+	protected _preventScroll(event: TouchMouseEvent): boolean {
 		return event.isTouch && this._longTap || this._startTrackPoint !== null;
 	}
 
-	private _correctXCoord(x: Coordinate): Coordinate {
+	protected _correctXCoord(x: Coordinate): Coordinate {
 		return Math.max(0, Math.min(x, this._size.w - 1)) as Coordinate;
 	}
 
-	private _correctYCoord(y: Coordinate): Coordinate {
+	protected _correctYCoord(y: Coordinate): Coordinate {
 		return Math.max(0, Math.min(y, this._size.h - 1)) as Coordinate;
 	}
 
-	private _setCrosshairPosition(x: Coordinate, y: Coordinate): void {
+	protected _setCrosshairPosition(x: Coordinate, y: Coordinate): void {
 		this._model().setAndSaveCurrentPosition(this._correctXCoord(x), this._correctYCoord(y), ensureNotNull(this._state));
 	}
 
-	private _clearCrosshairPosition(): void {
+	protected _clearCrosshairPosition(): void {
 		this._model().clearCurrentPosition();
 	}
 
-	private _tryExitTrackingMode(): void {
+	protected _tryExitTrackingMode(): void {
 		if (this._exitTrackingModeOnNextTry) {
 			this._startTrackPoint = null;
 			this._clearCrosshairPosition();
 		}
 	}
 
-	private _startTrackingMode(startTrackPoint: Point, crossHairPosition: Point): void {
+	protected _startTrackingMode(startTrackPoint: Point, crossHairPosition: Point): void {
 		this._startTrackPoint = startTrackPoint;
 		this._exitTrackingModeOnNextTry = false;
 		this._setCrosshairPosition(crossHairPosition.x, crossHairPosition.y);
@@ -677,11 +684,11 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		this._initCrosshairPosition = { x: crosshair.appliedX(), y: crosshair.appliedY() };
 	}
 
-	private _model(): ChartModel {
+	protected _model(): ChartModel {
 		return this._chart.model();
 	}
 
-	private _finishScroll(): void {
+	protected _finishScroll(): void {
 		const model = this._model();
 		const state = this.state();
 		const priceScale = state.defaultPriceScale();
@@ -692,7 +699,7 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		this._isScrolling = false;
 	}
 
-	private _endScroll(event: TouchMouseEvent): void {
+	protected _endScroll(event: TouchMouseEvent): void {
 		if (!this._isScrolling) {
 			return;
 		}
@@ -743,11 +750,11 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		requestAnimationFrame(animationFn);
 	}
 
-	private _onMouseEvent(): void {
+	protected _onMouseEvent(): void {
 		this._startTrackPoint = null;
 	}
 
-	private _mouseTouchDownEvent(): void {
+	protected _mouseTouchDownEvent(): void {
 		if (!this._state) {
 			return;
 		}
@@ -764,16 +771,10 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 				selection.removeAllRanges();
 			}
 		}
-
-		const priceScale = this._state.defaultPriceScale();
-
-		if (priceScale.isEmpty() || this._model().timeScale().isEmpty()) {
-			return;
-		}
 	}
 
 	// eslint-disable-next-line complexity
-	private _pressedMouseTouchMoveEvent(event: TouchMouseEvent): void {
+	protected _pressedMouseTouchMoveEvent(event: TouchMouseEvent): void {
 		if (this._state === null) {
 			return;
 		}
