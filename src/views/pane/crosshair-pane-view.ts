@@ -27,10 +27,13 @@ export class CrosshairPaneView implements IPaneView {
 		x: 0,
 		y: 0,
 	};
-	private _renderer: CrosshairRenderer = new CrosshairRenderer(this._rendererData);
+	private _renderer: CrosshairRenderer;
 
 	public constructor(source: Crosshair) {
 		this._source = source;
+
+		const options = source.options();
+		this._renderer = options.renderer ? options.renderer(this._rendererData) : new CrosshairRenderer(this._rendererData);
 	}
 
 	public update(): void {

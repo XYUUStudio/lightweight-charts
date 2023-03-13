@@ -18,7 +18,7 @@ export interface CrosshairRendererData {
 }
 
 export class CrosshairRenderer implements IPaneRenderer {
-	private readonly _data: CrosshairRendererData | null;
+	protected readonly _data: CrosshairRendererData | null;
 
 	public constructor(data: CrosshairRendererData | null) {
 		this._data = data;

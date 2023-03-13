@@ -1,5 +1,6 @@
 import { ensureNotNull } from '../helpers/assertions';
 import { notNull } from '../helpers/strict-type-checks';
+import { CrosshairRenderer, CrosshairRendererData } from '../renderers/crosshair-renderer';
 
 import { LineStyle, LineWidth } from '../renderers/draw-line';
 import { CrosshairMarksPaneView } from '../views/pane/crosshair-marks-pane-view';
@@ -106,6 +107,11 @@ export interface CrosshairOptions {
 	 * @defaultValue {@link CrosshairMode.Magnet}
 	 */
 	mode: CrosshairMode;
+
+	/**
+	 * renderer
+	 */
+	renderer?: (data: CrosshairRendererData) => CrosshairRenderer;
 
 	/**
 	 * Vertical line options.
