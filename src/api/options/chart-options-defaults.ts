@@ -17,6 +17,7 @@ export const chartOptionsDefaults: ChartOptionsInternal = {
 	width: 0,
 	height: 0,
 	paneWidget: (chart: ChartWidget, pane: Pane) => new PaneWidget(chart, pane),
+	autoSize: false,
 	layout: layoutOptionsDefaults,
 	crosshair: crosshairOptionsDefaults,
 	grid: gridOptionsDefaults,
